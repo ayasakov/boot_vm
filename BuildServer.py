@@ -55,7 +55,6 @@ class BuildServer:
             ssh.close()
             return "Host isn't available", 1
 
-
     def delete(self):
         nova = client.Client(self.user, self.password,
                              project_id=self.project_id,
@@ -65,3 +64,26 @@ class BuildServer:
             return 0
         except:
             return 1
+
+
+    def test_command():
+        server = BuildServer()
+        server.create()
+        s = ''
+        (output, ret) = server.commands(command='ls')
+        s.join(output)
+        (output, ret) = server.commands(command='echo "Hello, world"')
+        s.join(output)
+        (output, ret) = server.commands(command='mkdir "test"')
+        s.join(output)
+        (output, ret) = server.commands(command='ls -l')
+        s.join(output)
+        (output, ret) = server.commands(command='cd test')
+        s.join(output)
+        (output, ret) = server.commands(command='ls -l')
+        s.join(output)
+        (output, ret) = server.commands(command='cd')
+        s.join(output)
+        (output, ret) = server.commands(command='rm test')
+        s.join(output)
+        return s
