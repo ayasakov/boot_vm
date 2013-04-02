@@ -1,6 +1,7 @@
-from novaclient.v1_1 import client
-import paramiko
 import sys
+import paramiko
+from novaclient.v1_1 import client
+
 
 class BuildServer:
 
@@ -29,7 +30,8 @@ class BuildServer:
         while nova.servers.find(name=name).status == "BUILD":
             pass
         if nova.servers.find(name=name).status == "ACTIVE":
-            self.ip = ''.join(nova.servers.find(name=name).addresses['private'][0]['addr'])
+            ip = nova.servers.find(name=name).addresses['private'][0]['addr']
+            self.ip = ''.join(ip)
             self.build = True
             return 0
         else:
@@ -48,7 +50,7 @@ class BuildServer:
             stdin, stdout, stderr = ssh.exec_command(command)
             out = ''
             for line in stdout:
-                out = out+'... '+line.strip('\n')
+                out = out + '... ' + line.strip('\n')
             ssh.close()
             return out, 0
         except:
@@ -64,26 +66,3 @@ class BuildServer:
             return 0
         except:
             return 1
-
-
-    def test_command():
-        server = BuildServer()
-        server.create()
-        s = ''
-        (output, ret) = server.commands(command='ls')
-        s.join(output)
-        (output, ret) = server.commands(command='echo "Hello, world"')
-        s.join(output)
-        (output, ret) = server.commands(command='mkdir "test"')
-        s.join(output)
-        (output, ret) = server.commands(command='ls -l')
-        s.join(output)
-        (output, ret) = server.commands(command='cd test')
-        s.join(output)
-        (output, ret) = server.commands(command='ls -l')
-        s.join(output)
-        (output, ret) = server.commands(command='cd')
-        s.join(output)
-        (output, ret) = server.commands(command='rm test')
-        s.join(output)
-        return s
