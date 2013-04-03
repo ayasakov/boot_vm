@@ -1,29 +1,43 @@
-import BuildServer
+import unittest
+
+from mock import patch, Mock
+
+from BuildServer import BuildServer
 
 
-class TestBuildServer:
+class TestBuildServer(unittest.TestCase):
 
-    def __init__(self):
-        self.server = BuildServer()
-        self.names = ['new_name1', 'new_name2', 'new_name3']
+    mock_file = Mock()
 
-    def test_create(self):
-        self.server.create(name=self.names[0])
-        self.server.create(name=self.names[1], flavor='1024')
-        self.server.create(name=self.names[2],
+    @patch.object(BuildServer, 'create')
+    def test_create(self, mock_file):
+        mock_file.return_value = 0
+        bs = BuildServer()
+        result = bs.create()
+        self.assertEquals(result, 0)
+        result = bs.create(name='name1', flavor='1024')
+        self.assertEquals(result, 0)
+        result = bs.create(name='name2',
                            image='cirros-0.3.1-x86_64-uec-kernel')
+        self.assertEquals(result, 0)
 
-    def test_commands(self):
-        self.server.create()
-        (output, ret) = self.server.commands(command='ls')
-        (output, ret) = self.server.commands(command='echo "Hello, world"')
-        (output, ret) = self.server.commands(command='mkdir "test"')
-        (output, ret) = self.server.commands(command='ls -l')
-        (output, ret) = self.server.commands(command='cd test')
-        (output, ret) = self.server.commands(command='ls -l')
-        (output, ret) = self.server.commands(command='cd')
-        (output, ret) = self.server.commands(command='rm test')
+    @patch.object(BuildServer, 'commands')
+    def test_commands(self, mock_file):
+        mock_file.return_value = 0
+        bs = BuildServer()
+        out, ret = bs.commands()
+        self.assertEquals(ret, 0)
+        out, ret = bs.commands(command='mkdir "test"')
+        self.assertEquals(ret, 0)
+        out, ret = bs.commands(command='ls -l')
+        self.assertEquals(ret, 0)
 
-    def test_delete(self):
-        for i in enumerate(self.names):
-            self.server.delete(name=self.names[i])
+    @patch.object(BuildServer, 'delete')
+    def test_delete(self, mock_file):
+        mock_file.return_value = 0
+        bs = BuildServer()
+        ret = bs.delete()
+        self.assertEquals(ret, 0)
+
+if __name__ == "__main__":
+    unittest.main()
