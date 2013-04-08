@@ -1,5 +1,6 @@
 import unittest
 
+import paramiko
 from mock import patch, Mock
 from novaclient import exceptions
 from novaclient.v1_1 import client
@@ -43,7 +44,15 @@ class TestExecuteCommand(unittest.TestCase):
                             cmd='echo "Hello"')
         self.assertEqual(out, "Host isn't available")
 
-    def test_if_server_found(self):
+    @patch.object(paramiko, 'SSHClient')
+    def test_if_server_found_and_not_connection(self, mock_file1):
+        paramiko.SSHClient.connect.side_effect = KeyError('foo')
+        ec = ExecuteCommand()
+        (out, ret) = ec.exe(flv='512', img='cirros-0.3.1-x86_64-uec',
+                            cmd='echo "Hello"')
+        self.assertEqual(out, "Host isn't available")
+
+    def test_if_server_found_and_connection(self):
         ec = ExecuteCommand()
         (out, ret) = ec.exe(flv='512', img='cirros-0.3.1-x86_64-uec',
                             cmd='echo "Hello"')
